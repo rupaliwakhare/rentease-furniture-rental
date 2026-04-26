@@ -1,13 +1,12 @@
 import express from "express";
+import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
 
 // middleware
 app.use(express.json());
 
-// test route
-app.get("/", (req, res) => {
-  res.send("Welcome to RentEase API 🚀");
-});
+// auth route
+app.use("/api/auth", authRoutes);
 
 export default app;
