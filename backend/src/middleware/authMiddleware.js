@@ -1,23 +1,3 @@
-// import jwt from "jsonwebtoken";
-// import User from "../models/User";
-
-// const protect = async (req, res, next) => {
-//   try {
-//     const token = req.headers.authorization;
-//     if (!token) return res.status(401).send("Token not provided");
-
-//     const decode = jwt.verify(token, process.env.JWT_SECRET);
-//     req.user = {
-//       id: decode.id,
-//       role: decode.role,
-//     };
-//     next();
-//   } catch (error) {
-//     res.status(401).send("Invalid token");
-//   }
-// };
-
-// export default protect;
 
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
