@@ -21,19 +21,22 @@ router.get("/:id", getProductById);
 
 
 
-
 router.post(
   "/",
-  protect,  
-  authorize, 
+  protect,
+  authorize("admin"), // ✅ yaha role dena zaroori hai
   upload.single("image"),
   createProduct,
 );
 
+router.put(
+  "/:id",
+  protect,
+  authorize("admin"),
+  upload.single("image"),
+  updateProduct,
+);
 
-router.put("/:id", protect, authorize, upload.single("image"), updateProduct);
-
-
-router.delete("/:id", protect, authorize, deleteProduct);
+router.delete("/:id", protect, authorize("admin"), deleteProduct);
 
 export default router;
