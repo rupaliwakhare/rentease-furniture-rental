@@ -36,7 +36,7 @@ export const registerUser = async (req, res) => {
       email:email.toLowerCase(),
       password: hashedPassword,
       mobile,
-      role: "user",
+      role: role ||"user",
     });
 
     // REMOVE PASSWORD
