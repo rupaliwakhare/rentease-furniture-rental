@@ -15,7 +15,7 @@ const productSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      enum: Object.values(CATEGORIES), // 🔥 using constants
+      enum: Object.values(CATEGORIES),
       required: true,
     },
 
@@ -31,7 +31,7 @@ const productSchema = new mongoose.Schema(
 
     tenureOptions: {
       type: [Number],
-      enum: TENURE_OPTIONS, // 🔥 restrict allowed months
+      enum: TENURE_OPTIONS,
       default: [1, 3, 6],
     },
 

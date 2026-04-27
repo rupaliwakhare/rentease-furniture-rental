@@ -1,4 +1,6 @@
 import Product from "../models/Product.js";
+import fs from "fs";
+
 
 // ✅ CREATE PRODUCT
 export const createProduct = async (req, res) => {
@@ -13,6 +15,11 @@ export const createProduct = async (req, res) => {
       product,
     });
   } catch (error) {
+    if (req.file) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.log("File delete error:", err);
+      });
+    }
     res.status(500).json({ message: error.message });
   }
 };
@@ -97,6 +104,13 @@ export const updateProduct = async (req, res) => {
 
     if (!product) return res.status(404).json({ message: "Product not found" });
 
+    // 🔥 old image delete
+    if (req.file && product.image) {
+      fs.unlink(product.image, (err) => {
+        if (err) console.log("Old image delete error:", err);
+      });
+    }
+
     // update allowed fields only
     const fields = [
       "name",
@@ -136,6 +150,13 @@ export const deleteProduct = async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (!product) return res.status(404).json({ message: "Product not found" });
+
+    // 🔥 delete image file
+    if (product.image) {
+      fs.unlink(product.image, (err) => {
+        if (err) console.log("Delete image error:", err);
+      });
+    }
 
     await product.deleteOne();
 

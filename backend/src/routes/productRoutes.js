@@ -1,5 +1,6 @@
 import express from "express";
 import upload from "../config/multer.js";
+import { validateProduct } from "../middleware/validationProduct.js";
 
 import {
   createProduct,
@@ -24,8 +25,10 @@ router.get("/:id", getProductById);
 router.post(
   "/",
   protect,
-  authorize("admin"), // ✅ yaha role dena zaroori hai
+  authorize("admin"),
+
   upload.single("image"),
+  validateProduct,
   createProduct,
 );
 
@@ -35,6 +38,7 @@ router.put(
   authorize("admin"),
   upload.single("image"),
   updateProduct,
+  validateProduct,
 );
 
 router.delete("/:id", protect, authorize("admin"), deleteProduct);
