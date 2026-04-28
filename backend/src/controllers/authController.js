@@ -6,7 +6,7 @@ import { generateToken } from "../utils/generateToken.js";
 // REGISTER USER
 export const registerUser = async (req, res) => {
   try {
-    const { name, age, email, password, mobile, role } = req.body;
+    const { name, age, email, password, mobile, role,address} = req.body;
 
     // VALIDATION
     if (!name || !email || !password) {
@@ -36,7 +36,8 @@ export const registerUser = async (req, res) => {
       email:email.toLowerCase(),
       password: hashedPassword,
       mobile,
-      role: role ||"user",
+      role: "user",
+      address
     });
 
     // REMOVE PASSWORD
@@ -45,7 +46,10 @@ export const registerUser = async (req, res) => {
     res.status(201).json({
       message: "User registered successfully",
       user: safeUser,
-      token: generateToken(user),
+      token: generateToken({
+        id:user._id,
+        role:user.role,
+      }),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -63,7 +67,8 @@ export const loginUser = async (req, res) => {
     }
 
     // FIND USER
-   const user = await User.findOne({ email }).select("+password");
+    const normalizedEmail = email.toLowerCase();
+   const user = await User.findOne({ email:normalizedEmail }).select("+password");
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
