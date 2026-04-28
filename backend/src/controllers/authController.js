@@ -2,11 +2,10 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/generateToken.js";
 
-
 // REGISTER USER
 export const registerUser = async (req, res) => {
   try {
-    const { name, age, email, password, mobile, role,address} = req.body;
+    const { name, age, email, password, mobile, role, address } = req.body;
 
     // VALIDATION
     if (!name || !email || !password) {
@@ -33,11 +32,11 @@ export const registerUser = async (req, res) => {
     const user = await User.create({
       name,
       age,
-      email:email.toLowerCase(),
+      email: email.toLowerCase(),
       password: hashedPassword,
       mobile,
       role: "user",
-      address
+      address,
     });
 
     // REMOVE PASSWORD
@@ -47,8 +46,8 @@ export const registerUser = async (req, res) => {
       message: "User registered successfully",
       user: safeUser,
       token: generateToken({
-        id:user._id,
-        role:user.role,
+        id: user._id,
+        role: user.role,
       }),
     });
   } catch (error) {
@@ -68,7 +67,9 @@ export const loginUser = async (req, res) => {
 
     // FIND USER
     const normalizedEmail = email.toLowerCase();
-   const user = await User.findOne({ email:normalizedEmail }).select("+password");
+    const user = await User.findOne({ email: normalizedEmail }).select(
+      "+password",
+    );
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
@@ -102,3 +103,4 @@ export const getMe = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
