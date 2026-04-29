@@ -3,7 +3,8 @@ import User from "../models/User.js";
 export const addAddress = async (req, res) => {
   try {
     const {
-      fullName,
+      firstName,
+      lastName,
       mobile,
       street,
       area,
@@ -17,8 +18,8 @@ export const addAddress = async (req, res) => {
       deliveryInstructions,
     } = req.body;
 
-    // 🔍 Basic validation
-    if (!fullName || !mobile || !street || !city || !pincode) {
+    // 🔍 Validation
+    if (!firstName || !lastName || !mobile || !street || !city || !pincode) {
       return res.status(400).json({
         message: "Required fields missing",
       });
@@ -30,9 +31,9 @@ export const addAddress = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // 🏠 Create new address
     const newAddress = {
-      fullName,
+      firstName,
+      lastName,
       mobile,
       street,
       area,
@@ -44,10 +45,9 @@ export const addAddress = async (req, res) => {
       floor,
       hasLift: hasLift || false,
       deliveryInstructions,
-      isDefault: user.addresses.length === 0, // first address default
+      isDefault: user.addresses.length === 0,
     };
 
-    // ➕ Add address
     user.addresses.push(newAddress);
 
     await user.save();
@@ -57,16 +57,37 @@ export const addAddress = async (req, res) => {
       addresses: user.addresses,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error",
-    });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-export const updateAddress = async (req, res) => {
+// GET ALL ADDRESS
+
+export const getAddresses = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("addresses");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      addresses: user.addresses,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// GET SINGLE ADDRESS
+
+export const getAddressById = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     const address = user.addresses.id(req.params.id);
 
@@ -74,7 +95,33 @@ export const updateAddress = async (req, res) => {
       return res.status(404).json({ message: "Address not found" });
     }
 
-    // update fields dynamically
+    res.json({
+      address,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+
+// UPDATE ADDRESS
+
+export const updateAddress = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const address = user.addresses.id(req.params.id);
+
+    if (!address) {
+      return res.status(404).json({ message: "Address not found" });
+    }
+
     Object.keys(req.body).forEach((key) => {
       address[key] = req.body[key];
     });
@@ -86,14 +133,19 @@ export const updateAddress = async (req, res) => {
       addresses: user.addresses,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
+// DELETE ADDRESS
+
 export const deleteAddress = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     const address = user.addresses.id(req.params.id);
 
@@ -110,7 +162,6 @@ export const deleteAddress = async (req, res) => {
       addresses: user.addresses,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };

@@ -1,9 +1,20 @@
-import express from "express"
-import { addAddress,updateAddress,deleteAddress } from "../controllers/addressController.js";
+import express from "express";
+import {
+  addAddress,
+  getAddresses,
+  getAddressById,
+  updateAddress,
+  deleteAddress,
+} from "../controllers/addressController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
-router.post("/address", protect, addAddress);
-router.put("/address/:id", protect, updateAddress);
-router.delete("/address/:id", protect, deleteAddress);
+
+// ✅ Clean REST routes
+router.post("/", protect, addAddress); 
+router.get("/", protect, getAddresses); // all
+router.get("/:id", protect, getAddressById); // single
+router.put("/:id", protect, updateAddress); 
+router.delete("/:id", protect, deleteAddress); 
 
 export default router;

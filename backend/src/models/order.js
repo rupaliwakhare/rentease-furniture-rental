@@ -1,28 +1,27 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema(
+const orderSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
-    age: Number,
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
-      select: false,
-    },
-    mobile: String,
-    role: {
-      type: String,
-      enum: ["user", "admin", "vendor"],
-      default: "user",
-    },
+
+    items: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+        },
+        quantity: Number,
+        tenure: Number,
+        deliveryDate: Date,
+        totalRent: Number,
+        deposit: Number,
+      },
+    ],
+
     addresses: [
       {
         firstName: {
@@ -69,9 +68,16 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
-  },
 
+    totalAmount: Number,
+
+    status: {
+      type: String,
+      enum: ["pending", "confirmed", "delivered", "returned"],
+      default: "pending",
+    },
+  },
   { timestamps: true },
 );
 
-export default mongoose.model("User", userSchema);
+export default mongoose.model("Order", orderSchema);

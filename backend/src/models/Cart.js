@@ -17,11 +17,13 @@ const cartSchema = new mongoose.Schema(
     quantity: {
       type: Number,
       default: 1,
+      min: 1, // ❗ zero ya negative na ho
     },
 
     tenure: {
       type: Number,
-      required: true, // months
+      required: true,
+      min: 1, // ❗ at least 1 month
     },
 
     deliveryDate: {
@@ -42,7 +44,7 @@ const cartSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// one product per user
+// 🔥 One product per user (duplicate entry avoid)
 cartSchema.index({ user: 1, product: 1 }, { unique: true });
 
 export default mongoose.model("Cart", cartSchema);

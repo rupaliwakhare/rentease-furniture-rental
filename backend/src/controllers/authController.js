@@ -5,7 +5,7 @@ import { generateToken } from "../utils/generateToken.js";
 // REGISTER USER
 export const registerUser = async (req, res) => {
   try {
-    const { name, age, email, password, mobile, role, address } = req.body;
+    const { name, age, email, password, mobile } = req.body;
 
     // VALIDATION
     if (!name || !email || !password) {
@@ -13,15 +13,20 @@ export const registerUser = async (req, res) => {
     }
 
     if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ message: "Password must be 6+ characters" });
+      return res.status(400).json({
+        message: "Password must be 6+ characters",
+      });
     }
 
     // CHECK EXISTING USER
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({
+      email: email.toLowerCase(),
+    });
+
     if (existingUser) {
-      return res.status(400).json({ message: "Email already registered" });
+      return res.status(400).json({
+        message: "Email already registered",
+      });
     }
 
     // HASH PASSWORD
@@ -35,8 +40,7 @@ export const registerUser = async (req, res) => {
       email: email.toLowerCase(),
       password: hashedPassword,
       mobile,
-      role: "user",
-      address,
+      role: "user", // 🔒 force user
     });
 
     // REMOVE PASSWORD
@@ -62,38 +66,45 @@ export const loginUser = async (req, res) => {
 
     // VALIDATION
     if (!email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({
+        message: "All fields are required",
+      });
     }
 
-    // FIND USER
-    const normalizedEmail = email.toLowerCase();
-    const user = await User.findOne({ email: normalizedEmail }).select(
-      "+password",
-    );
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+    }).select("+password");
+
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(400).json({
+        message: "User not found",
+      });
     }
 
-    // CHECK PASSWORD
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({
+        message: "Invalid credentials",
+      });
     }
 
-    // REMOVE PASSWORD
     const { password: _, ...safeUser } = user._doc;
 
     res.json({
       message: "Login successful",
       user: safeUser,
-      token: generateToken(user),
+      token: generateToken({
+        id: user._id,
+        role: user.role,
+      }),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// GET CURRENT USER (Protected)
+// GET CURRENT USER
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -103,4 +114,3 @@ export const getMe = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
