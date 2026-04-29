@@ -10,15 +10,15 @@ const orderSchema = new mongoose.Schema(
 
     items: [
       {
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-        },
+        product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
         quantity: Number,
         tenure: Number,
         deliveryDate: Date,
+        returnDate: Date,
         totalRent: Number,
         deposit: Number,
+        renewable: { type: Boolean, default: true },
+        extendedTenure: Number,
       },
     ],
 
@@ -71,6 +71,14 @@ const orderSchema = new mongoose.Schema(
 
     totalAmount: Number,
 
+    paymentId: String,
+    razorpayOrderId: String,
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "failed", "refunded"],
+      default: "pending",
+    },
+
     status: {
       type: String,
       enum: [
@@ -85,6 +93,21 @@ const orderSchema = new mongoose.Schema(
       ],
       default: "pending",
     },
+    rentalStatus: {
+      type: String,
+      enum: ["active", "expired", "extended"],
+      default: "active",
+    },
+    refundAmount: { type: Number, default: 0 },
+    deliverySlot: String,
+    assignedStaff: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    isReturned: { type: Boolean, default: false },
+    returnCondition: {
+      type: String,
+      enum: ["good", "damaged", "needs repair"],
+      default: "good",
+    },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true },
 );
