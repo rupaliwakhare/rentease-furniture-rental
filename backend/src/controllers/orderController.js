@@ -46,12 +46,7 @@ export const placeOrder = async (req, res) => {
         deposit: item.deposit,
       })),
       address: {
-        firstName: address.firstName,
-        lastName: address.lastName,
-        mobile: address.mobile,
-        street: address.street,
-        city: address.city,
-        pincode: address.pincode,
+        ...address.toObject(), // ✅ सारे fields आ जाएंगे
       },
       totalAmount,
       status: "pending", // 🔥 important
