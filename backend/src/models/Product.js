@@ -5,16 +5,19 @@ import { TENURE_OPTIONS } from "../constants/tenureOptions.js";
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    slug: { type: String, unique: true }, // SEO friendly
+
     description: { type: String },
 
     category: {
       type: String,
       enum: Object.values(CATEGORIES),
       required: true,
+      index: true,
     },
 
-    pricePerMonth: { type: Number, required: true },
-    deposit: { type: Number, required: true },
+    pricePerMonth: { type: Number, required: true, min: 0 },
+    deposit: { type: Number, required: true, min: 0 },
 
     tenureOptions: {
       type: [Number],
@@ -24,8 +27,8 @@ const productSchema = new mongoose.Schema(
     maxTenure: { type: Number, default: 12 },
     renewable: { type: Boolean, default: true },
 
-    stock: { type: Number, default: 1 },
-    currentlyRented: { type: Number, default: 0 },
+    stock: { type: Number, default: 1, min: 0 },
+    currentlyRented: { type: Number, default: 0, min: 0 },
 
     condition: {
       type: String,
@@ -35,11 +38,11 @@ const productSchema = new mongoose.Schema(
     lastMaintenanceDate: { type: Date },
 
     image: { type: String },
-    gallery: [{ type: String }], // multiple images
+    gallery: [{ type: String }],
 
-    isAvailable: { type: Boolean, default: true },
+    isAvailable: { type: Boolean, default: true, index: true },
 
-    averageRating: { type: Number, default: 0 },
+    averageRating: { type: Number, default: 0, min: 0, max: 5 },
     reviews: [
       {
         user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -50,7 +53,12 @@ const productSchema = new mongoose.Schema(
 
     deliveryCharge: { type: Number, default: 0 },
     returnPolicy: { type: String },
-    warranty: { type: String }, // appliances specific
+    warranty: { type: String },
+
+    discount: { type: Number, default: 0 }, // percentage
+
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true },
 );

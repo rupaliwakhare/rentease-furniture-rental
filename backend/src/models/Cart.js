@@ -17,7 +17,7 @@ const cartSchema = new mongoose.Schema(
     quantity: {
       type: Number,
       default: 1,
-      min: 1, // ❗ zero ya negative na ho
+      min: 1, // zero ya negative na ho
     },
 
     tenure: {
@@ -44,7 +44,7 @@ const cartSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// 🔥 One product per user (duplicate entry avoid)
+//  One product per user (duplicate entry avoid)
 cartSchema.index({ user: 1, product: 1 }, { unique: true });
 
 export default mongoose.model("Cart", cartSchema);
