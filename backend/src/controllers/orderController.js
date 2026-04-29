@@ -1,6 +1,7 @@
 import Cart from "../models/Cart.js";
 import User from "../models/User.js";
 import Order from "../models/Order.js";
+import Razorpay from "razorpay";
 
 export const placeOrder = async (req, res) => {
   try {
@@ -52,14 +53,22 @@ export const placeOrder = async (req, res) => {
       status: "pending", // 🔥 important
     });
 
-    // 🧹 clear cart
-    await Cart.deleteMany({ user: req.user._id });
+    // 💳 create Razorpay order
+    const razorpayOrder = await razorpay.orders.create({
+      amount: totalAmount * 100, // paise
+      currency: "INR",
+      receipt: `order_${order._id}`,
+    });
 
     res.status(201).json({
       message: "Order placed successfully",
       order,
+      razorpayOrder, // frontend को भेजेंगे
     });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+
