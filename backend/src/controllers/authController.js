@@ -127,3 +127,31 @@ export const getMe = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+
+//  LOGOUT USER
+export const logoutUser = async (req, res) => {
+  try {
+    // Frontend se refreshToken ya accessToken bhejna hoga
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(400).json({ message: "No token provided" });
+    }
+
+    // Agar aap refresh token use kar rahe ho toh DB se delete karo
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    // Refresh token ko null kar dena (invalidate)
+    user.refreshToken = null;
+    await user.save();
+
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error, please try again later" });
+  }
+};
