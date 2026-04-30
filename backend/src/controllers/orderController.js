@@ -46,7 +46,7 @@ export const placeOrder = async (req, res) => {
         totalRent: item.totalRent,
         deposit: item.deposit,
       })),
-      address: {
+      addresses: {
         ...address.toObject(), // ✅ सारे fields आ जाएंगे
       },
       totalAmount,
@@ -71,4 +71,36 @@ export const placeOrder = async (req, res) => {
   }
 };
 
+ 
+
+// ✅ Get User Orders
+export const getOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ user: req.user._id }).populate("items.product");
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ✅ Update Order Status
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    order.status = status;
+    order.activityLog.push({
+      action: `Status updated to ${status}`,
+      updatedBy: req.user._id,
+    });
+
+    await order.save();
+    res.json({ message: "Order status updated", order });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
