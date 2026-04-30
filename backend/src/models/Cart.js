@@ -23,7 +23,7 @@ const cartSchema = new mongoose.Schema(
     tenure: {
       type: Number,
       required: true,
-      min: 1, // ❗ at least 1 month
+      min: 1, // at least 1 month
     },
 
     deliveryDate: {

@@ -5,8 +5,11 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
+      trim: true,
     },
-    age: Number,
+    age: {
+      type:Number,
+    min: 18,},
     email: {
       type: String,
       required: true,
@@ -17,7 +20,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       select: false,
     },
-    mobile: String,
+    mobile: {
+      type:String,
+    match: /^[0-9]{10}$/,
+  },
+
     role: {
       type: String,
       enum: ["user", "admin", "vendor"],
@@ -41,13 +48,22 @@ const userSchema = new mongoose.Schema(
         street: String,
         area: String,
         landmark: String,
-        city: String,
-        state: String,
+        city: {
+          type: String,
+          index: true,
+        },
+        state: {
+          type: String,
+          index: true,
+        },
         country: {
           type: String,
           default: "India",
         },
-        pincode: String,
+        pincode: {
+          type: String,
+          match: /^[0-9]{6}$/,
+        },
 
         type: {
           type: String,
@@ -67,6 +83,12 @@ const userSchema = new mongoose.Schema(
           type: Boolean,
           default: false,
         },
+      },
+    ],
+    rentals: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Rental",
       },
     ],
   },

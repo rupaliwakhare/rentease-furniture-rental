@@ -13,7 +13,7 @@ export const protect = async (req, res, next) => {
     }
 
     if (!token) {
-      return res.status(401).json({ message: "Not authorized, no token" });
+      return res.status(401).json({ message: "Not authorized, no token provided" });
     }
 
     // VERIFY TOKEN
@@ -29,6 +29,8 @@ export const protect = async (req, res, next) => {
    req.user = user;
     next();
   } catch (error) {
+
+    console.error("Auth Error:", error.message);
     res.status(401).json({ message: "Invalid or expired token" });
   }
 };
@@ -38,7 +40,7 @@ export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
-        message: `Access denied for role: ${req.user.role}`,
+        message: `Access denied for roles:  ${roles.join(", ")}, but you are: ${req.user.role}`,
       });
     }
     next();

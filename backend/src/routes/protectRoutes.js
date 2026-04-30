@@ -9,7 +9,7 @@ router.get("/admin", protect, authorize("admin"), (req, res) => {
 });
 
 // USER + ADMIN
-router.get("/dashboard", protect, authorize("user", "admin"), (req, res) => {
+router.get("/dashboard", protect, authorize("vendor"), (req, res) => {
   res.json({ message: "Dashboard Access" });
 });
 
