@@ -1,8 +1,9 @@
 import Product from "../models/Product.js";
+import Review from "../models/review.js";
 import fs from "fs";
 
 
-// ✅ CREATE PRODUCT
+// CREATE PRODUCT
 export const createProduct = async (req, res) => {
   try {
     const product = await Product.create({
@@ -24,7 +25,7 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// ✅ GET ALL PRODUCTS (Search + Filter + Pagination)
+// GET ALL PRODUCTS (Search + Filter + Pagination)
 export const getProducts = async (req, res) => {
   try {
     let {
@@ -42,24 +43,24 @@ export const getProducts = async (req, res) => {
 
     let query = {};
 
-    // 🔍 Search
+    //  Search
     if (search) {
       query.name = { $regex: search, $options: "i" };
     }
 
-    // 📂 Category
+    //  Category
     if (category) {
       query.category = category;
     }
 
-    // 💰 Price filter
+    //  Price filter
     if (minPrice || maxPrice) {
       query.pricePerMonth = {};
       if (minPrice) query.pricePerMonth.$gte = Number(minPrice);
       if (maxPrice) query.pricePerMonth.$lte = Number(maxPrice);
     }
 
-    // ✅ Availability filter
+    //  Availability filter
     if (available !== undefined) {
       query.isAvailable = available === "true";
     }
@@ -84,27 +85,43 @@ export const getProducts = async (req, res) => {
   }
 };
 
-// ✅ GET SINGLE PRODUCT
+//  GET SINGLE PRODUCT
 export const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
 
     if (!product) return res.status(404).json({ message: "Product not found" });
 
+    const reviews = await Review.find({ product: product._id }).populate(
+      "user",
+      "name",
+    );
+    // ✅ Calculate average rating
+    const avgRating =
+      reviews.length > 0
+        ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
+        : 0;
+
+    res.json({
+      product,
+      reviews,
+      averageRating: avgRating,
+      reviewCount: reviews.length,
+    });
     res.json(product);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// ✅ UPDATE PRODUCT
+//  UPDATE PRODUCT
 export const updateProduct = async (req, res) => {
   try {
     let product = await Product.findById(req.params.id);
 
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    // 🔥 old image delete
+    //  old image delete
     if (req.file && product.image) {
       fs.unlink(product.image, (err) => {
         if (err) console.log("Old image delete error:", err);
