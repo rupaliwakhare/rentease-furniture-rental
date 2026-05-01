@@ -35,6 +35,26 @@ export const placeOrder = async (req, res) => {
       0,
     );
 
+    // 🎟 Coupon apply (agar diya ho)
+    let discount = 0;
+    if (req.body.couponCode) {
+      const coupon = await Coupon.findOne({ code: req.body.couponCode });
+      if (
+        coupon &&
+        coupon.expiry >= new Date() &&
+        coupon.usedCount < coupon.usageLimit
+      ) {
+        if (coupon.discountType === "percentage") {
+          discount = (totalAmount * coupon.discountValue) / 100;
+        } else {
+          discount = coupon.discountValue;
+        }
+        totalAmount = totalAmount - discount; // ✅ final amount update
+        coupon.usedCount += 1;
+        await coupon.save();
+      }
+    }
+
     // 📦 create order
     const order = await Order.create({
       user: req.user._id,
@@ -50,6 +70,8 @@ export const placeOrder = async (req, res) => {
         ...address.toObject(), // ✅ सारे fields आ जाएंगे
       },
       totalAmount,
+      discount,
+      coupon: req.body.couponCode || null,
       status: "pending", // 🔥 important
     });
 
@@ -65,7 +87,6 @@ export const placeOrder = async (req, res) => {
       order,
       razorpayOrder, // frontend को भेजेंगे
     });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
